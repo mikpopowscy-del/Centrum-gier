@@ -16,12 +16,15 @@
     --yellow: #f59e0b;
     --green: #10b981;
     --purple: #a855f7;
+
+    /* PALETA SPLENDOR */
     --gem-white: #f8fafc;
     --gem-blue: #0284c7;
-    --gem-green: #15803d;
-    --gem-red: #b91c1c;
+    --gem-green: #16a34a;
+    --gem-red: #dc2626;
     --gem-black: #1e293b;
     --gem-gold: #eab308;
+
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --accent: #38bdf8;
@@ -161,8 +164,6 @@
     width: 105px; height: 150px; background: #fff; border-radius: 10px; border: 3px solid #cbd5e1;
     display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0f172a; font-weight: 900;
   }
-  .drawn-card-slot.mod { background: #fef3c7; border-color: #f59e0b; color: #b45309; }
-  .drawn-card-slot.action { background: #f3e8ff; border-color: #a855f7; color: #6b21a8; }
   .drawn-card-slot .c-val { font-size: 2.5rem; }
 
   .players-scroll { display: flex; flex-direction: column; gap: 8px; }
@@ -185,7 +186,7 @@
   .score-pill { background: #0284c7; color: #fff; font-size: 0.8rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
   .penalty-pill { background: #dc2626; color: #fff; font-size: 0.8rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
 
-  /* SPLENDOR */
+  /* SPLENDOR - KARTY I TOKENY */
   .splendor-gems-bank { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
   .gem-token {
     width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center;
@@ -202,41 +203,85 @@
 
   .nobles-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
   .noble-card {
-    width: 78px; height: 86px; background: #334155; border: 2px solid #fbbf24; border-radius: 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 6px 4px; flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; overflow: hidden;
+    width: 82px; height: 86px; background: #1e293b; border: 2px solid #fbbf24; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 6px; flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
-  .noble-art { width: 34px; height: 34px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; margin: 2px 0; }
 
   .splendor-cards-grid { display: flex; flex-direction: column; gap: 10px; }
   .splendor-tier-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
   
-  /* KARTA ROZWOJU SPLENDOR Z ILUSTRACJĄ */
+  /* NOWY DESIGN KARTY SPLENDOR: KOLOR WALUTY NA GÓRZE, DUŻY KOSZT NA DOLE */
   .dev-card {
-    width: 90px; height: 130px; border-radius: 10px; background: #1e293b; border: 2px solid var(--border);
-    display: flex; flex-direction: column; justify-content: space-between; padding: 6px; cursor: pointer; flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.15s, border-color 0.15s; position: relative;
+    width: 96px; height: 135px; border-radius: 10px; background: #0f172a;
+    display: flex; flex-direction: column; justify-content: space-between;
+    cursor: pointer; flex-shrink: 0; box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    transition: transform 0.15s, box-shadow 0.15s; position: relative; overflow: hidden;
+    border: 2px solid var(--border);
   }
-  .dev-card:hover { transform: translateY(-3px); }
-  .dev-card.tier-1 { border-color: #10b981; }
-  .dev-card.tier-2 { border-color: #f59e0b; }
-  .dev-card.tier-3 { border-color: #38bdf8; }
+  .dev-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(56, 189, 248, 0.3); }
 
-  .card-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-  .card-prestige { font-size: 1.1rem; font-weight: 900; color: #fff; }
-  .card-gem-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.4); }
-
-  .card-illustration {
-    width: 100%; height: 42px; border-radius: 6px; margin: 3px 0; background: rgba(0,0,0,0.35);
-    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  /* Górny pasek karty w kolorze danego klejnotu */
+  .dev-card-header {
+    width: 100%;
+    height: 38px;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
   }
-  .card-illustration svg { width: 34px; height: 34px; }
+  .dev-card-header.white { background: #e2e8f0; color: #0f172a; }
+  .dev-card-header.blue { background: #0284c7; color: #fff; }
+  .dev-card-header.green { background: #15803d; color: #fff; }
+  .dev-card-header.red { background: #dc2626; color: #fff; }
+  .dev-card-header.black { background: #1e293b; color: #fff; border-bottom-color: #475569; }
 
-  .cost-badge-column { display: flex; flex-direction: column; gap: 2px; }
-  .cost-badge-item {
-    font-size: 0.65rem; font-weight: 900; width: 16px; height: 16px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; color: #fff; border: 1px solid rgba(255,255,255,0.3);
+  .dev-card-points { font-size: 1.35rem; font-weight: 900; }
+  .dev-card-gem-badge {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
   }
+
+  /* Dolna sekcja z wyraźnym kosztem */
+  .dev-card-body {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex: 1;
+    gap: 4px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.95) 100%);
+  }
+
+  .cost-token-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    font-weight: 900;
+  }
+  .cost-token-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    border: 1.5px solid rgba(255,255,255,0.6);
+  }
+  .cost-token-circle.white { background: #f8fafc; color: #000; border-color: #cbd5e1; }
+  .cost-token-circle.blue { background: #0284c7; }
+  .cost-token-circle.green { background: #16a34a; }
+  .cost-token-circle.red { background: #dc2626; }
+  .cost-token-circle.black { background: #000; border-color: #64748b; }
 
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
@@ -280,7 +325,7 @@
       <div>
         <span class="game-badge badge-gold">Strategia • 2-6 Graczy</span>
         <div class="game-title" style="margin-top:10px;">Splendor (Edycja 6 os.)</div>
-        <div class="game-desc">Rezerwuj i kupuj kopalnie z ilustracjami renesansowymi, zbieraj żetony (10 każdego typu) i zdobywaj arystokratów.</div>
+        <div class="game-desc">Kupuj karty klejnotów z wyraźnymi kolorami walut i powiększonymi kosztami. Skalowane zasoby (10 każdego typu).</div>
       </div>
       <button class="btn-enter-game" style="background:#eab308; color:#000;" onclick="openGame('splendor')">Graj w Splendor</button>
     </div>
@@ -408,7 +453,7 @@
 </div>
 
 <!-- ======================================================== -->
-<!-- WIDOK 3: SPLENDOR (2-6 GRACZY Z ILUSTRACJAMI)            -->
+<!-- WIDOK 3: SPLENDOR (NOWY DESIGN KART I WALUT)             -->
 <!-- ======================================================== -->
 <div class="game-view" id="view-splendor">
   <div class="game-nav-bar">
@@ -431,7 +476,7 @@
       <div style="font-size:0.8rem; font-weight:bold; color:var(--yellow); text-transform:uppercase;">Arystokraci (Prestiż +3)</div>
       <div class="nobles-row" id="sp-nobles-row"></div>
 
-      <div style="font-size:0.8rem; font-weight:bold; color:var(--accent); text-transform:uppercase; margin-top:6px;">Karty Rozwoju (Kopalnie & Transport)</div>
+      <div style="font-size:0.8rem; font-weight:bold; color:var(--accent); text-transform:uppercase; margin-top:6px;">Karty Rozwoju na Stole</div>
       <div class="splendor-cards-grid" id="sp-cards-grid"></div>
 
       <div class="controls-grid" style="margin-top:8px;">
@@ -1046,21 +1091,10 @@ function f7Render() {
 }
 
 /* ========================================================
-   MODUŁ: SPLENDOR (OFICJALNY DLA 2-6 GRACZY Z GRAFIKAMI)
+   MODUŁ: SPLENDOR (NOWY DESIGN KART I WALUT)
    ======================================================== */
 const SP_GEMS = ['white', 'blue', 'green', 'red', 'black'];
-
-// Renesansowe grafiki wektorowe SVG dla kart i arystokratów
-const SP_ART_ICONS = {
-  // Tier 1: Kopalnia
-  mine: `<svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><path d="M14 2l4 4L7 17l-4-1 1-4L14 2z"/><path d="M3 22l6-6"/><path d="M18 6l3 3"/></svg>`,
-  // Tier 2: Karawana / Statek
-  ship: `<svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8"><path d="M2 20c5 0 8-2 10-2s5 2 10 2"/><path d="M4 18L3 12h18l-1 6"/><path d="M12 2v10"/><path d="M12 4l7 5H12"/></svg>`,
-  // Tier 3: Renesansowy Pałac
-  palace: `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8"><path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-4a3 3 0 0 1 6 0v4"/><circle cx="12" cy="9" r="1.5"/></svg>`,
-  // Arystokrata: Korona / Portret
-  noble: `<svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="1.8"><path d="M2 8l4 12h12l4-12-5 4-5-8-5 8z"/><circle cx="12" cy="16" r="2"/></svg>`
-};
+const SP_GEM_EMOJIS = { white: '💎', blue: '🔷', green: '🟢', red: '🔴', black: '⚫' };
 
 let sp_bank = { white: 10, blue: 10, green: 10, red: 10, black: 10, gold: 7 };
 let sp_nobles = [];
@@ -1094,28 +1128,28 @@ function spInitGame(reset = false) {
   sp_decks = { 1: [], 2: [], 3: [] };
   const colors = ['white', 'blue', 'green', 'red', 'black'];
   
-  // Tier 1 (Kopalnie)
+  // Tier 1
   for (let i = 0; i < 40; i++) {
     let c = colors[i % 5];
     let req = {};
     req[colors[(i+1)%5]] = (i % 3) + 1;
     req[colors[(i+2)%5]] = (i % 2) + 1;
-    sp_decks[1].push({ id: `t1_${i}`, tier: 1, gem: c, points: i % 8 === 0 ? 1 : 0, cost: req, art: 'mine' });
+    sp_decks[1].push({ id: `t1_${i}`, tier: 1, gem: c, points: i % 8 === 0 ? 1 : 0, cost: req });
   }
-  // Tier 2 (Statki handlowe)
+  // Tier 2
   for (let i = 0; i < 30; i++) {
     let c = colors[i % 5];
     let req = {};
     req[colors[(i+1)%5]] = 3;
     req[colors[(i+3)%5]] = 2;
-    sp_decks[2].push({ id: `t2_${i}`, tier: 2, gem: c, points: (i % 3) + 1, cost: req, art: 'ship' });
+    sp_decks[2].push({ id: `t2_${i}`, tier: 2, gem: c, points: (i % 3) + 1, cost: req });
   }
-  // Tier 3 (Pałace)
+  // Tier 3
   for (let i = 0; i < 20; i++) {
     let c = colors[i % 5];
     let req = {};
     req[colors[(i+2)%5]] = 6;
-    sp_decks[3].push({ id: `t3_${i}`, tier: 3, gem: c, points: (i % 3) + 3, cost: req, art: 'palace' });
+    sp_decks[3].push({ id: `t3_${i}`, tier: 3, gem: c, points: (i % 3) + 3, cost: req });
   }
 
   [1, 2, 3].forEach(t => {
@@ -1297,7 +1331,7 @@ function spBroadcast() {
 function spCreateRoom() {
   const name = document.getElementById('sp-name-input').value.trim() || "Host";
   const pin = Math.floor(1000 + Math.random() * 9000);
-  sp_topic = `sp_v2_${pin}`;
+  sp_topic = `sp_v3_${pin}`;
   sp_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'sp_h_' + myGlobalId + '_' + Date.now(), clean: true });
 
   sp_mqtt.on('connect', () => {
@@ -1339,10 +1373,9 @@ function spJoinRoom() {
   const pin = document.getElementById('sp-pin-input').value.trim();
   if (!pin) return alert("Wpisz PIN!");
 
-  sp_topic = `sp_v2_${pin}`;
+  sp_topic = `sp_v3_${pin}`;
   sp_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'sp_g_' + myGlobalId + '_' + Date.now(), clean: true });
 
-  // Poprawka connect dla Splendoru
   sp_mqtt.on('connect', () => {
     sp_isHost = false; sp_isOnline = true;
     sp_mqtt.subscribe(sp_topic + "/state", { qos: 1 }, () => {
@@ -1370,7 +1403,7 @@ function spRender() {
   banner.className = isMyTurn ? "turn-banner my-turn" : "turn-banner other-turn";
   document.getElementById('sp-turn-text').innerText = isMyTurn ? "👉 TWOJA TURA!" : `⏳ TURA: ${currP ? currP.name.toUpperCase() : ''}`;
 
-  // Bank klejnotów
+  // Bank
   const bBox = document.getElementById('sp-bank-tokens');
   bBox.innerHTML = "";
   ['white','blue','green','red','black','gold'].forEach(g => {
@@ -1387,36 +1420,40 @@ function spRender() {
   const nBox = document.getElementById('sp-nobles-row');
   nBox.innerHTML = "";
   sp_nobles.forEach(n => {
-    let reqs = Object.entries(n.req).map(([g,a]) => `<span style="color:var(--gem-${g}); font-size:0.75rem; font-weight:900;">${a}●</span>`).join(' ');
+    let reqs = Object.entries(n.req).map(([g,a]) => `
+      <div class="cost-token-item">
+        <span class="cost-token-circle ${g}">${a}</span>
+      </div>
+    `).join(' ');
+
     nBox.innerHTML += `
       <div class="noble-card">
-        <div style="display:flex; justify-content:space-between; width:100%;">
-          <strong style="color:var(--yellow); font-size:0.95rem;">${n.points}</strong>
-          <span style="font-size:0.75rem;">👑</span>
-        </div>
-        <div class="noble-art">${SP_ART_ICONS.noble}</div>
-        <div style="display:flex; gap:3px;">${reqs}</div>
+        <div style="font-size:1.1rem; font-weight:900; color:var(--yellow);">${n.points}</div>
+        <div style="display:flex; flex-direction:column; gap:2px;">${reqs}</div>
       </div>
     `;
   });
 
-  // Karty rozwoju
+  // KARTY ROZWOJU Z NOWYM UKŁADEM (KOLOR WALUTY + DUŻY KOSZT)
   const gBox = document.getElementById('sp-cards-grid');
   gBox.innerHTML = "";
   [3, 2, 1].forEach(tier => {
     let cardsHtml = sp_grid[tier].map((c, idx) => {
-      let costBadges = Object.entries(c.cost).map(([g, a]) => `
-        <span class="cost-badge-item" style="background:var(--gem-${g});">${a}</span>
+      let costList = Object.entries(c.cost).map(([g, a]) => `
+        <div class="cost-token-item">
+          <span class="cost-token-circle ${g}">${a}</span>
+        </div>
       `).join('');
 
       return `
         <div class="dev-card tier-${tier}" onclick="spBuyCard(${tier}, ${idx})">
-          <div class="card-top-bar">
-            <span class="card-prestige">${c.points || ''}</span>
-            <div class="card-gem-icon" style="background:var(--gem-${c.gem});">💎</div>
+          <div class="dev-card-header ${c.gem}">
+            <span class="dev-card-points">${c.points > 0 ? c.points : ''}</span>
+            <span class="dev-card-gem-badge">${SP_GEM_EMOJIS[c.gem]}</span>
           </div>
-          <div class="card-illustration">${SP_ART_ICONS[c.art || 'mine']}</div>
-          <div class="cost-badge-column">${costBadges}</div>
+          <div class="dev-card-body">
+            ${costList}
+          </div>
         </div>
       `;
     }).join('');
@@ -1446,7 +1483,7 @@ function spRender() {
   });
 }
 
-// INICJALIZACJA STARTOWA
+// STARTOWA INICJALIZACJA
 elferStartGame(true);
 f7InitDeck();
 f7Render();
