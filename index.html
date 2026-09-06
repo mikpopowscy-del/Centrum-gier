@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Arena Gier Karcianych</title>
+<script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
+<style>
+  :root {
+    --bg-main: #060d1d;
+    --bg-card: #0f172a;
+    --bg-inner: #1e293b;
+    --border: rgba(255, 255, 255, 0.12);
+    --red: #ef4444;
+    --blue: #38bdf8;
+    --yellow: #f59e0b;
+    --green: #10b981;
+    --purple: #a855f7;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+  }
+
+  body.light-theme {
+    --bg-main: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-inner: #e2e8f0;
+    --border: rgba(0, 0, 0, 0.12);
+    --red: #dc2626;
+    --blue: #0284c7;
+    --yellow: #d97706;
+    --green: #059669;
+    --purple: #7e22ce;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent: #0284c7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg-main); color: var(--text-main); padding: 8px; min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; overflow-x: hidden; }
+
+  /* GŁÓWNY PRZEŁĄCZNIK GIER (TABS) */
+  .game-switcher-bar {
+    max-width: 1350px;
+    margin: 0 auto 10px auto;
+    width: 100%;
+    display: flex;
+    gap: 6px;
+    background: var(--bg-card);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .game-tab-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .game-tab-btn.active {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
+  }
+
+  /* KONTENERY WIDOKÓW GIER */
+  .game-view { display: none; width: 100%; max-width: 1350px; margin: 0 auto; flex-direction: column; gap: 10px; }
+  .game-view.active-view { display: flex; }
+
+  /* WSPÓLNE STYLE WIDOKU */
+  .top-bar-container { display: flex; gap: 8px; align-items: stretch; }
+  .turn-banner {
+    flex: 1; min-height: 54px; padding: 10px 14px; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: center; position: relative; overflow: hidden; background: var(--bg-inner); color: var(--text-muted); border: 1px solid var(--border);
+  }
+  .turn-banner.my-turn {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #fff; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  }
+  .timer-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: #fbbf24; transition: width 1s linear; }
+
+  .top-btn {
+    width: 52px; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--accent); font-size: 1.25rem; font-weight: 900;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  .main-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  @media(min-width: 900px) { .main-grid { display: grid; grid-template-columns: 1.35fr 1fr; align-items: start; } }
+
+  .panel {
+    background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border);
+    padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 10px;
+  }
+
+  /* PRZYCISKI AKCJI */
+  .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  button.action-btn {
+    cursor: pointer; border: none; border-radius: 10px; padding: 13px 8px;
+    font-weight: 900; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  button:disabled { opacity: 0.25; cursor: not-allowed; }
+  .btn-green { background: #10b981; color: #fff; }
+  .btn-yellow { background: #eab308; color: #000; }
+  .btn-blue { background: #38bdf8; color: #000; }
+
+  /* KARTY 11 */
+  .color-lane {
+    background: var(--bg-inner); border-radius: 10px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 6px; border-left: 6px solid var(--border);
+    overflow-x: auto; min-height: 76px;
+  }
+  .color-lane.red { border-left-color: var(--red); }
+  .color-lane.blue { border-left-color: var(--blue); }
+  .color-lane.yellow { border-left-color: var(--yellow); }
+  .color-lane.green { border-left-color: var(--green); }
+  .card-chip {
+    width: 44px; height: 62px; border-radius: 7px; display: flex; align-items: center;
+    justify-content: center; font-size: 1.2rem; font-weight: 900; color: #fff;
+    flex-shrink: 0; user-select: none; border: 1px solid rgba(255,255,255,0.25);
+  }
+  .card-chip.red { background: var(--red); }
+  .card-chip.blue { background: var(--blue); }
+  .card-chip.yellow { background: var(--yellow); color: #000; }
+  .card-chip.green { background: var(--green); }
+  .card-chip.empty-slot { background: rgba(0,0,0,0.06); border: 2px dashed var(--text-muted); color: var(--text-muted); font-size: 0.85rem; }
+
+  .hand-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 10px 6px; min-height: 88px; align-items: center; background: var(--bg-inner); border-radius: 10px; }
+  .hand-card { cursor: pointer; }
+  .hand-card.playable { box-shadow: 0 0 16px var(--yellow); border: 2px solid #fff; transform: translateY(-4px); }
+
+  /* STYLE FLIP 7 */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .stat-card { background: var(--bg-inner); padding: 8px 4px; border-radius: 8px; text-align: center; }
+  .stat-card .num { font-size: 1.2rem; font-weight: 900; color: var(--accent); }
+  .stat-card .num.danger { color: var(--red); }
+  .stat-card .lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; font-weight: bold; }
+
+  .arena-box {
+    background: radial-gradient(circle at center, #1e293b 0%, #080f20 100%);
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .card-3d-deck {
+    width: 105px; height: 150px; background: repeating-linear-gradient(45deg, #1e3a8a, #1e3a8a 10px, #172554 10px, #172554 20px);
+    border: 3px solid #60a5fa; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .drawn-card-slot {
+    width: 105px; height: 150px; background: #fff; border-radius: 10px; border: 3px solid #cbd5e1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0f172a; font-weight: 900;
+  }
+  .drawn-card-slot.mod { background: #fef3c7; border-color: #f59e0b; color: #b45309; }
+  .drawn-card-slot.action { background: #f3e8ff; border-color: #a855f7; color: #6b21a8; }
+  .drawn-card-slot .c-val { font-size: 2.5rem; }
+
+  .players-scroll { display: flex; flex-direction: column; gap: 8px; }
+  .player-slot {
+    background: var(--bg-inner); border-radius: 10px; padding: 10px; border-left: 6px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .player-slot.active { border-left-color: var(--yellow); background: rgba(56, 189, 248, 0.15); }
+  .player-slot.last-card-warning { border-color: var(--red) !important; }
+
+  /* KLAWIATURY KART FLIP 7 */
+  .deck-keypad { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .deck-keypad.actions-grid { grid-template-columns: repeat(3, 1fr); }
+  .card-btn { background: var(--bg-inner); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; padding: 6px 1px; text-align: center; }
+  .card-btn:disabled { opacity: 0.2; }
+
+  .score-pill { background: #0284c7; color: #fff; font-size: 0.8rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
+  .penalty-pill { background: #dc2626; color: #fff; font-size: 0.8rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; border: 1px solid #f87171; }
+
+  /* MODALE */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+    display: none; justify-content: center; align-items: center; z-index: 9999; padding: 16px;
+  }
+  .modal-box {
+    background: var(--bg-card); border: 2px solid var(--accent); border-radius: 16px; padding: 20px;
+    max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- GŁÓWNY PRZEŁĄCZNIK GIER -->
+<div class="game-switcher-bar">
+  <button class="game-tab-btn active" id="tab-btn-elfer" onclick="switchGameView('elfer')">🃏 Gra 11</button>
+  <button class="game-tab-btn" id="tab-btn-flip7" onclick="switchGameView('flip7')">⚡ Flip 7</button>
+  <button class="game-tab-btn" id="tab-btn-flip7v2" onclick="switchGameView('flip7v2')">🎲 Flip 7 (Wariant 2)</button>
+</div>
+
+<!-- ======================================================== -->
+<!-- WIDOK 1: GRA 11                                          -->
+<!-- ======================================================== -->
+<div class="game-view active-view" id="view-elfer">
+  <div class="top-bar-container">
+    <div class="turn-banner" id="elfer-turn-banner">
+      <div id="elfer-turn-text">OCZEKIWANIE NA START</div>
+      <div style="font-size:0.75rem; font-weight:bold; margin-top:2px;" id="elfer-turn-sub"></div>
+      <div class="timer-progress" id="elfer-timer-bar"></div>
+    </div>
+    <button class="top-btn" onclick="toggleTheme()">☀️</button>
+    <button class="top-btn" onclick="openModal('modal-rules-elfer')">?</button>
+  </div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted); text-transform:uppercase;">Stół (11 &rarr; 1 i 11 &rarr; 20)</span>
+        <span style="font-size:0.85rem; font-weight:900; color:var(--yellow);" id="elfer-match-indicator">Partia 1 z 3</span>
+      </div>
+      <div id="elfer-board-lanes" style="display:flex; flex-direction:column; gap:6px;"></div>
+
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:0.9rem; font-weight:bold;">Twoja Ręka (<span id="elfer-cards-count">0</span>)</span>
+          <button class="action-btn" style="padding:4px 8px; font-size:0.75rem; background:var(--bg-inner); color:#fff;" onclick="elferToggleSort()" id="elfer-sort-btn">🔄 Kolorami</button>
+        </div>
+        <div class="hand-scroll" id="elfer-hand-container"></div>
+      </div>
+
+      <div class="controls-grid">
+        <button class="action-btn btn-green" id="elfer-btn-draw" onclick="elferActionDrawClick()">DOBIERZ</button>
+        <button class="action-btn btn-yellow" id="elfer-btn-pass" onclick="elferActionPass()">SPASUJ</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-inner); padding:8px 12px; border-radius:8px;">
+        <span id="elfer-pin-display" style="font-size:0.85rem;">PIN: <strong style="color:var(--yellow);">Lokalnie</strong></span>
+        <span style="font-size:0.75rem; color:var(--text-muted);" id="elfer-deck-count">Talia: 80</span>
+      </div>
+
+      <div id="elfer-lobby-box" style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="elfer-name-input" style="background:var(--bg-inner); border:1px solid var(--border); color:#fff; padding:8px; border-radius:8px; flex:1;" placeholder="Wpisz swoje imię">
+          <button class="action-btn btn-blue" style="padding:8px 14px;" onclick="elferCreateRoom()">Hostuj</button>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="elfer-pin-input" style="background:var(--bg-inner); border:1px solid var(--border); color:#fff; padding:8px; border-radius:8px; flex:1;" placeholder="Wpisz PIN">
+          <button class="action-btn" style="background:#475569; color:#fff; padding:8px 14px;" onclick="elferJoinRoom()">Dołącz</button>
+        </div>
+      </div>
+
+      <h3 style="font-size:0.9rem;">Gracze i punkty karne</h3>
+      <div class="players-scroll" id="elfer-players-list"></div>
+
+      <button class="action-btn btn-green" style="margin-top:auto;" onclick="elferStartGame(true)">🔁 Nowy Mecz</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- WIDOK 2: FLIP 7 (ORYGINAŁ)                               -->
+<!-- ======================================================== -->
+<div class="game-view" id="view-flip7">
+  <div class="top-bar-container">
+    <div class="turn-banner" id="f7-turn-banner">
+      <div id="f7-turn-text">FLIP 7 ARENA</div>
+    </div>
+    <button class="top-btn" onclick="toggleTheme()">☀️</button>
+    <button class="top-btn" onclick="openModal('modal-rules-flip7')">?</button>
+  </div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="num" id="f7-stat-deck">94</div><div class="lbl">Talia</div></div>
+        <div class="stat-card"><div class="num danger" id="f7-stat-bust">0.0%</div><div class="lbl">Bust</div></div>
+        <div class="stat-card"><div class="num" id="f7-stat-unique">0/7</div><div class="lbl">Unikalne</div></div>
+        <div class="stat-card"><div class="num" id="f7-stat-round">0</div><div class="lbl">Runda</div></div>
+      </div>
+
+      <div class="arena-box">
+        <div style="display:flex; gap:16px;">
+          <div class="card-3d-deck" onclick="f7DrawCard()"><strong style="color:#fff;">FLIP 7</strong></div>
+          <div id="f7-slot-card"><div class="drawn-card-slot" style="border-style:dashed;">LOSUJ</div></div>
+        </div>
+        <div class="controls-grid" style="width:100%; max-width:320px;">
+          <button class="action-btn btn-blue" id="f7-btn-hit" onclick="f7DrawCard()">LOSUJ</button>
+          <button class="action-btn btn-green" id="f7-btn-stay" onclick="f7Stay()">PASS</button>
+        </div>
+      </div>
+
+      <h3 style="font-size:0.9rem;">Gracze przy stole</h3>
+      <div class="players-scroll" id="f7-players-list"></div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-inner); padding:8px 12px; border-radius:8px;">
+        <span id="f7-pin-display" style="font-size:0.85rem;">PIN: <strong style="color:var(--yellow);">Lokalnie</strong></span>
+      </div>
+
+      <div id="f7-lobby-box" style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="f7-name-input" style="background:var(--bg-inner); border:1px solid var(--border); color:#fff; padding:8px; border-radius:8px; flex:1;" placeholder="Wpisz swoje imię">
+          <button class="action-btn btn-blue" style="padding:8px 14px;" onclick="f7CreateRoom()">Hostuj</button>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="f7-pin-input" style="background:var(--bg-inner); border:1px solid var(--border); color:#fff; padding:8px; border-radius:8px; flex:1;" placeholder="Wpisz PIN">
+          <button class="action-btn" style="background:#475569; color:#fff; padding:8px 14px;" onclick="f7JoinRoom()">Dołącz</button>
+        </div>
+      </div>
+
+      <div style="font-size:0.75rem; color:var(--text-muted); font-weight:bold;">Karty w talii</div>
+      <div class="deck-keypad" id="f7-deck-numbers"></div>
+      <div class="deck-keypad actions-grid" id="f7-deck-specials" style="margin-top:6px;"></div>
+
+      <button class="action-btn btn-green" style="margin-top:auto;" onclick="f7ResetGame()">Reset Gry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- WIDOK 3: FLIP 7 (WARIANT 2 - SLOT PRZYGOTOWANY)           -->
+<!-- ======================================================== -->
+<div class="game-view" id="view-flip7v2">
+  <div class="panel" style="text-align:center; padding:40px 20px;">
+    <h2 style="color:var(--accent); margin-bottom:8px;">🎲 Flip 7 - Wariant 2</h2>
+    <p style="color:var(--text-muted); font-size:0.9rem; max-width:400px; margin:0 auto 16px auto;">
+      Ten slot jest odizolowany i gotowy na wprowadzenie nowych zasad wariantu 2 (np. alternatywne punktowanie, specjalne kości lub karty modyfikatorów).
+    </p>
+    <div style="display:inline-block; padding:8px 16px; background:var(--bg-inner); border-radius:8px; border:1px dashed var(--border); font-size:0.8rem;">
+      Kanał MQTT zarezerwowany: <code>f7_v2_*</code>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ZASADY 11 -->
+<div class="modal-overlay" id="modal-rules-elfer">
+  <div class="modal-box">
+    <h2>📖 Zasady: Gra 11</h2>
+    <ul style="margin-left:18px; margin-bottom:12px; font-size:0.85rem;">
+      <li>Układaj karty od 11 w dół do 1 oraz w górę do 20.</li>
+      <li>Jeśli masz pasujący ruch, musisz wyłożyć minimum jedną kartę.</li>
+      <li>Brak ruchu: dobierasz 1 do 3 kart.</li>
+      <li>Zwycięzca ma 0 pkt. Pozostali sumują oczka w rękach jako punkty karne.</li>
+    </ul>
+    <button class="action-btn btn-blue" style="width:100%;" onclick="closeModal('modal-rules-elfer')">Zamknij</button>
+  </div>
+</div>
+
+<!-- MODAL ZASADY FLIP 7 -->
+<div class="modal-overlay" id="modal-rules-flip7">
+  <div class="modal-box">
+    <h2>📖 Zasady: Flip 7</h2>
+    <ul style="margin-left:18px; margin-bottom:12px; font-size:0.85rem;">
+      <li>Dobieraj karty tak, aby nie zdublować żadnego numeru (Bust = 0 pkt).</li>
+      <li>Skompletowanie 7 różnych numerów daje bonus +15 pkt (Flip 7).</li>
+      <li>Gramy do 200 punktów.</li>
+    </ul>
+    <button class="action-btn btn-blue" style="width:100%;" onclick="closeModal('modal-rules-flip7')">Zamknij</button>
+  </div>
+</div>
+
+<script>
+const MQTT_BROKER = "wss://broker.emqx.io:8084/mqtt";
+function makeSessionId() { return 'u_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7); }
+const myGlobalId = makeSessionId();
+
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
+}
+function openModal(id) { document.getElementById(id).style.display = "flex"; }
+function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+/* ========================================================
+   PRZEŁĄCZNIK GIER (TABS)
+   ======================================================== */
+function switchGameView(gameKey) {
+  document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active-view'));
+  document.querySelectorAll('.game-tab-btn').forEach(b => b.classList.remove('active'));
+
+  if (gameKey === 'elfer') {
+    document.getElementById('view-elfer').classList.add('active-view');
+    document.getElementById('tab-btn-elfer').classList.add('active');
+  } else if (gameKey === 'flip7') {
+    document.getElementById('view-flip7').classList.add('active-view');
+    document.getElementById('tab-btn-flip7').classList.add('active');
+  } else if (gameKey === 'flip7v2') {
+    document.getElementById('view-flip7v2').classList.add('active-view');
+    document.getElementById('tab-btn-flip7v2').classList.add('active');
+  }
+}
+
+/* ========================================================
+   MODUŁ: GRA 11 (PREFIX: g11_*)
+   ======================================================== */
+const E_COLORS = ['red', 'blue', 'yellow', 'green'];
+const E_COLOR_NAMES = { red: 'Czerwony', blue: 'Niebieski', yellow: 'Żółty', green: 'Zielony' };
+
+let e_deck = [];
+let e_board = { red: { min:null, max:null }, blue: { min:null, max:null }, yellow: { min:null, max:null }, green: { min:null, max:null } };
+let e_players = [
+  { id: myGlobalId, name: "Gracz 1", hand: [], penaltyPoints: 0 },
+  { id: "local_2", name: "Gracz 2", hand: [], penaltyPoints: 0 }
+];
+let e_activeIdx = 0;
+let e_cardsPlayed = 0;
+let e_drawnCount = 0;
+let e_sortMode = 'colors';
+let e_mqtt = null;
+let e_topic = null;
+let e_isHost = true;
+let e_isOnline = false;
+
+function elferToggleSort() {
+  e_sortMode = (e_sortMode === 'colors') ? 'values' : 'colors';
+  document.getElementById('elfer-sort-btn').innerText = (e_sortMode === 'colors') ? "🔄 Kolorami" : "🔄 Wartościami";
+  const myP = e_players.find(p => p.id === myGlobalId) || e_players[e_activeIdx];
+  if (myP) { elferSortHand(myP.hand); elferRender(); }
+}
+
+function elferSortHand(hand) {
+  if (!hand) return;
+  if (e_sortMode === 'colors') {
+    const o = { red: 1, blue: 2, yellow: 3, green: 4 };
+    hand.sort((a, b) => (o[a.color] !== o[b.color]) ? o[a.color] - o[b.color] : a.value - b.value);
+  } else {
+    hand.sort((a, b) => (a.value !== b.value) ? a.value - b.value : a.color.localeCompare(b.color));
+  }
+}
+
+function elferInitDeck() {
+  e_deck = [];
+  for (let c of E_COLORS) {
+    for (let i = 1; i <= 20; i++) e_deck.push({ color: c, value: i });
+  }
+  for (let i = e_deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [e_deck[i], e_deck[j]] = [e_deck[j], e_deck[i]];
+  }
+}
+
+function elferStartGame(resetFull = false) {
+  elferInitDeck();
+  e_board = { red: { min:null, max:null }, blue: { min:null, max:null }, yellow: { min:null, max:null }, green: { min:null, max:null } };
+  const cardCount = e_players.length === 2 ? 14 : 11;
+  e_players.forEach(p => {
+    p.hand = [];
+    if (resetFull) p.penaltyPoints = 0;
+    for (let k = 0; k < cardCount; k++) { if (e_deck.length > 0) p.hand.push(e_deck.pop()); }
+    elferSortHand(p.hand);
+  });
+  e_activeIdx = 0;
+  e_cardsPlayed = 0;
+  e_drawnCount = 0;
+  elferBroadcast();
+  elferRender();
+}
+
+function elferCanPlay(c) {
+  if (!c) return false;
+  const lane = e_board[c.color];
+  if (c.value === 11) return lane.min === null;
+  if (lane.min === null) return false;
+  return c.value === lane.min - 1 || c.value === lane.max + 1;
+}
+
+function elferPlayCard(idx) {
+  const myP = e_players.find(p => p.id === myGlobalId) || e_players[e_activeIdx];
+  const currP = e_players[e_activeIdx];
+  if (!myP || currP.id !== myP.id) return;
+  const card = myP.hand[idx];
+  if (!elferCanPlay(card)) return;
+
+  if (e_isOnline && !e_isHost) {
+    e_mqtt.publish(e_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "PLAY", card }));
+    return;
+  }
+  elferApplyPlay(myGlobalId, card);
+}
+
+function elferApplyPlay(senderId, card) {
+  const currP = e_players[e_activeIdx];
+  if (currP.id !== senderId) return;
+  const hIdx = currP.hand.findIndex(c => c.color === card.color && c.value === card.value);
+  if (hIdx === -1 || !elferCanPlay(card)) return;
+
+  currP.hand.splice(hIdx, 1);
+  e_cardsPlayed++;
+  const lane = e_board[card.color];
+  if (card.value === 11) { lane.min = 11; lane.max = 11; }
+  else if (card.value < lane.min) lane.min = card.value;
+  else if (card.value > lane.max) lane.max = card.value;
+
+  if (currP.hand.length === 0) {
+    e_players.forEach(p => { p.hand.forEach(c => p.penaltyPoints += c.value); });
+    alert(`Partię wygrywa ${currP.name}!`);
+    elferStartGame(false);
+    return;
+  }
+  elferBroadcast();
+  elferRender();
+}
+
+function elferActionDrawClick() {
+  const myP = e_players.find(p => p.id === myGlobalId) || e_players[e_activeIdx];
+  const currP = e_players[e_activeIdx];
+  if (!myP || currP.id !== myP.id) return;
+
+  if (e_deck.length === 0 && e_cardsPlayed === 0 && !myP.hand.some(elferCanPlay)) {
+    elferActionPass();
+    return;
+  }
+  if (e_isOnline && !e_isHost) {
+    e_mqtt.publish(e_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "DRAW" }));
+    return;
+  }
+  elferApplyDraw(myGlobalId);
+}
+
+function elferApplyDraw(senderId) {
+  const currP = e_players[e_activeIdx];
+  if (currP.id !== senderId || e_drawnCount >= 3 || e_deck.length === 0) return;
+  currP.hand.push(e_deck.pop());
+  elferSortHand(currP.hand);
+  e_drawnCount++;
+  elferBroadcast();
+  elferRender();
+}
+
+function elferActionPass() {
+  const myP = e_players.find(p => p.id === myGlobalId) || e_players[e_activeIdx];
+  const currP = e_players[e_activeIdx];
+  if (!myP || currP.id !== myP.id) return;
+
+  if (e_isOnline && !e_isHost) {
+    e_mqtt.publish(e_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "PASS" }));
+    return;
+  }
+  e_activeIdx = (e_activeIdx + 1) % e_players.length;
+  e_cardsPlayed = 0;
+  e_drawnCount = 0;
+  elferBroadcast();
+  elferRender();
+}
+
+function elferBroadcast() {
+  if (!e_isHost || !e_mqtt || !e_topic) return;
+  const payload = { board: e_board, players: e_players, deckCount: e_deck.length, activeIdx: e_activeIdx, cardsPlayed: e_cardsPlayed, drawnCount: e_drawnCount };
+  e_mqtt.publish(e_topic + "/state", JSON.stringify(payload), { qos: 1, retain: true });
+}
+
+function elferCreateRoom() {
+  const name = document.getElementById('elfer-name-input').value.trim() || "Host";
+  const pin = Math.floor(1000 + Math.random() * 9000);
+  e_topic = `g11_v2_${pin}`;
+  e_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'e_host_' + makeSessionId(), clean: true });
+
+  e_mqtt.on('connect', () => {
+    e_isHost = true; e_isOnline = true;
+    e_players = [{ id: myGlobalId, name: name, hand: [], penaltyPoints: 0 }];
+    e_mqtt.subscribe(e_topic + "/act", { qos: 1 });
+    e_mqtt.subscribe(e_topic + "/join", { qos: 1 });
+    document.getElementById('elfer-pin-display').innerHTML = `PIN: <strong style="color:var(--yellow);">${pin}</strong>`;
+    document.getElementById('elfer-lobby-box').style.display = "none";
+    elferStartGame(true);
+  });
+
+  e_mqtt.on('message', (t, m) => {
+    const d = JSON.parse(m.toString());
+    if (t.endsWith("/join")) {
+      if (!e_players.some(p => p.id === d.id) && e_players.length < 6) {
+        const newHand = [];
+        for (let k = 0; k < 11; k++) { if (e_deck.length > 0) newHand.push(e_deck.pop()); }
+        elferSortHand(newHand);
+        e_players.push({ id: d.id, name: d.name, hand: newHand, penaltyPoints: 0 });
+        elferBroadcast();
+        elferRender();
+      }
+    } else if (t.endsWith("/act")) {
+      if (d.type === "PLAY") elferApplyPlay(d.senderId, d.card);
+      else if (d.type === "DRAW") elferApplyDraw(d.senderId);
+      else if (d.type === "PASS" && e_players[e_activeIdx].id === d.senderId) {
+        e_activeIdx = (e_activeIdx + 1) % e_players.length; e_cardsPlayed = 0; e_drawnCount = 0;
+        elferBroadcast(); elferRender();
+      }
+    }
+  });
+}
+
+function elferJoinRoom() {
+  const name = document.getElementById('elfer-name-input').value.trim() || "Gracz";
+  const pin = document.getElementById('elfer-pin-input').value.trim();
+  if (!pin) return alert("Wpisz PIN!");
+
+  e_topic = `g11_v2_${pin}`;
+  e_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'e_guest_' + makeSessionId(), clean: true });
+
+  e_mqtt.on('connect', () => {
+    e_isHost = false; e_isOnline = true;
+    e_mqtt.subscribe(e_topic + "/state", { qos: 1 }, () => {
+      e_mqtt.publish(e_topic + "/join", JSON.stringify({ id: myGlobalId, name: name }), { qos: 1 });
+    });
+    document.getElementById('elfer-pin-display').innerHTML = `✅ PIN: <strong style="color:var(--success);">${pin}</strong>`;
+    document.getElementById('elfer-lobby-box').style.display = "none";
+  });
+
+  e_mqtt.on('message', (t, m) => {
+    if (t.endsWith("/state")) {
+      const d = JSON.parse(m.toString());
+      e_board = d.board; e_players = d.players; e_activeIdx = d.activeIdx;
+      e_cardsPlayed = d.cardsPlayed; e_drawnCount = d.drawnCount;
+      document.getElementById('elfer-deck-count').innerText = `Talia: ${d.deckCount}`;
+      elferRender();
+    }
+  });
+}
+
+function elferRender() {
+  const currP = e_players[e_activeIdx];
+  const myP = e_players.find(p => p.id === myGlobalId) || e_players[e_activeIdx];
+  const isMyTurn = currP && myP && currP.id === myP.id;
+
+  const banner = document.getElementById('elfer-turn-banner');
+  banner.className = isMyTurn ? "turn-banner my-turn" : "turn-banner other-turn";
+  document.getElementById('elfer-turn-text').innerText = isMyTurn ? "👉 TWOJA TURA!" : `⏳ JEDZIE: ${currP ? currP.name.toUpperCase() : ''}`;
+
+  const pList = document.getElementById('elfer-players-list');
+  pList.innerHTML = "";
+  e_players.forEach((p, idx) => {
+    const isAct = idx === e_activeIdx;
+    pList.innerHTML += `
+      <div class="player-slot ${isAct ? 'active' : ''}">
+        <span>${p.name} ${p.id === myGlobalId ? '(Ty)' : ''} ${isAct ? '▶' : ''}</span>
+        <div>
+          <span class="score-pill">${p.hand.length} k.</span>
+          <span class="penalty-pill">PKT: ${p.penaltyPoints}</span>
+        </div>
+      </div>
+    `;
+  });
+
+  const bLanes = document.getElementById('elfer-board-lanes');
+  bLanes.innerHTML = "";
+  E_COLORS.forEach(c => {
+    const lane = e_board[c];
+    let cards = "";
+    if (lane.min === null) cards = `<div class="card-chip empty-slot">11</div>`;
+    else {
+      for (let v = lane.min; v <= lane.max; v++) cards += `<div class="card-chip ${c}">${v}</div>`;
+    }
+    bLanes.innerHTML += `<div class="color-lane ${c}"><strong style="width:70px; font-size:0.75rem;">${E_COLOR_NAMES[c]}</strong>${cards}</div>`;
+  });
+
+  const hBox = document.getElementById('elfer-hand-container');
+  hBox.innerHTML = "";
+  if (myP && myP.hand) {
+    document.getElementById('elfer-cards-count').innerText = myP.hand.length;
+    myP.hand.forEach((c, idx) => {
+      const playable = isMyTurn && elferCanPlay(c);
+      const div = document.createElement("div");
+      div.className = `card-chip ${c.color} hand-card ${playable ? 'playable' : ''}`;
+      div.innerText = c.value;
+      if (playable) div.onclick = () => elferPlayCard(idx);
+      hBox.appendChild(div);
+    });
+  }
+
+  const hasPlayable = myP && myP.hand.some(elferCanPlay);
+  const btnDraw = document.getElementById('elfer-btn-draw');
+  btnDraw.innerText = (e_drawnCount === 0) ? "DOBIERZ (DO 3)" : `DOBIERZ (${e_drawnCount}/3)`;
+  btnDraw.disabled = !isMyTurn || e_drawnCount >= 3 || (e_cardsPlayed === 0 && e_drawnCount === 0 && hasPlayable);
+
+  const btnPass = document.getElementById('elfer-btn-pass');
+  btnPass.disabled = !isMyTurn || (e_cardsPlayed === 0 && e_drawnCount === 0);
+}
+
+/* ========================================================
+   MODUŁ: FLIP 7 (PREFIX: f7_*)
+   ======================================================== */
+const F7_INITIAL = { "0":1,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"10":10,"11":11,"12":12,"+2":1,"+4":1,"+6":1,"+8":1,"+10":1,"x2":1,"Freeze":3,"Flip3":3,"2ndChance":3 };
+let f7_deck = {};
+let f7_players = [
+  { id: myGlobalId, name: "Gracz 1", cards: [], status: "active", totalScore: 0, secondChances: 0 },
+  { id: "local_f7_2", name: "Gracz 2", cards: [], status: "active", totalScore: 0, secondChances: 0 }
+];
+let f7_activeIdx = 0;
+let f7_mqtt = null;
+let f7_topic = null;
+let f7_isHost = true;
+let f7_isOnline = false;
+
+function f7InitDeck() { f7_deck = JSON.parse(JSON.stringify(F7_INITIAL)); }
+function f7CardsLeft() { return Object.values(f7_deck).reduce((a, b) => a + b, 0); }
+
+function f7CalcScore(cards) {
+  let sum = 0, flat = 0, mult = 1;
+  const un = new Set();
+  cards.forEach(c => {
+    if (!isNaN(c)) { sum += parseInt(c, 10); un.add(c); }
+    else if (c.startsWith("+")) flat += parseInt(c.replace("+", ""), 10);
+    else if (c === "x2") mult *= 2;
+  });
+  let total = (sum + flat) * mult;
+  if (un.size >= 7) total += 15;
+  return { total, unCount: un.size };
+}
+
+function f7DrawCard() {
+  const currP = f7_players[f7_activeIdx];
+  const myP = f7_players.find(p => p.id === myGlobalId) || f7_players[f7_activeIdx];
+  if (!currP || !myP || currP.id !== myP.id || currP.status !== "active") return;
+
+  if (f7_isOnline && !f7_isHost) {
+    f7_mqtt.publish(f7_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "DRAW" }));
+    return;
+  }
+  f7ApplyDraw();
+}
+
+function f7ApplyDraw() {
+  const pool = [];
+  for (const [c, cnt] of Object.entries(f7_deck)) { for (let i = 0; i < cnt; i++) pool.push(c); }
+  if (pool.length === 0) return;
+  const drawn = pool[Math.floor(Math.random() * pool.length)];
+  f7_deck[drawn]--;
+
+  const p = f7_players[f7_activeIdx];
+  p.cards.push(drawn);
+
+  // Bust check
+  const nums = p.cards.filter(c => !isNaN(c));
+  const hasDupe = nums.some((v, i) => nums.indexOf(v) !== i);
+  if (hasDupe) {
+    if (p.secondChances > 0) {
+      p.secondChances = 0;
+      p.cards.splice(p.cards.indexOf("2ndChance"), 1);
+      p.cards.splice(p.cards.lastIndexOf(drawn), 1);
+    } else {
+      p.status = "busted";
+      f7NextActive();
+    }
+  } else if (drawn === "2ndChance") {
+    p.secondChances = 1;
+  }
+
+  document.getElementById('f7-slot-card').innerHTML = `<div class="drawn-card-slot"><div class="c-val">${drawn}</div></div>`;
+  f7Broadcast();
+  f7Render();
+}
+
+function f7Stay() {
+  const currP = f7_players[f7_activeIdx];
+  const myP = f7_players.find(p => p.id === myGlobalId) || f7_players[f7_activeIdx];
+  if (!currP || !myP || currP.id !== myP.id) return;
+
+  if (f7_isOnline && !f7_isHost) {
+    f7_mqtt.publish(f7_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "STAY" }));
+    return;
+  }
+  currP.status = "stayed";
+  currP.totalScore += f7CalcScore(currP.cards).total;
+  f7NextActive();
+  f7Broadcast();
+  f7Render();
+}
+
+function f7NextActive() {
+  if (!f7_players.some(p => p.status === "active")) {
+    f7_players.forEach(p => { p.cards = []; p.status = "active"; });
+    if (f7CardsLeft() < 15) f7InitDeck();
+  }
+  f7_activeIdx = (f7_activeIdx + 1) % f7_players.length;
+}
+
+function f7Broadcast() {
+  if (!f7_isHost || !f7_mqtt || !f7_topic) return;
+  const payload = { deck: f7_deck, players: f7_players, activeIdx: f7_activeIdx };
+  f7_mqtt.publish(f7_topic + "/state", JSON.stringify(payload), { qos: 1, retain: true });
+}
+
+function f7CreateRoom() {
+  const name = document.getElementById('f7-name-input').value.trim() || "Host";
+  const pin = Math.floor(1000 + Math.random() * 9000);
+  f7_topic = `f7_v1_${pin}`;
+  f7_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'f7_host_' + makeSessionId(), clean: true });
+
+  f7_mqtt.on('connect', () => {
+    f7_isHost = true; f7_isOnline = true;
+    f7_players = [{ id: myGlobalId, name: name, cards: [], status: "active", totalScore: 0, secondChances: 0 }];
+    f7_mqtt.subscribe(f7_topic + "/act", { qos: 1 });
+    f7_mqtt.subscribe(f7_topic + "/join", { qos: 1 });
+    document.getElementById('f7-pin-display').innerHTML = `PIN: <strong style="color:var(--yellow);">${pin}</strong>`;
+    document.getElementById('f7-lobby-box').style.display = "none";
+    f7InitDeck();
+    f7Broadcast();
+    f7Render();
+  });
+
+  f7_mqtt.on('message', (t, m) => {
+    const d = JSON.parse(m.toString());
+    if (t.endsWith("/join")) {
+      if (!f7_players.some(p => p.id === d.id)) {
+        f7_players.push({ id: d.id, name: d.name, cards: [], status: "active", totalScore: 0, secondChances: 0 });
+        f7Broadcast();
+        f7Render();
+      }
+    } else if (t.endsWith("/act")) {
+      if (d.type === "DRAW") f7ApplyDraw();
+      else if (d.type === "STAY") {
+        f7_players[f7_activeIdx].status = "stayed";
+        f7_players[f7_activeIdx].totalScore += f7CalcScore(f7_players[f7_activeIdx].cards).total;
+        f7NextActive(); f7Broadcast(); f7Render();
+      }
+    }
+  });
+}
+
+function f7JoinRoom() {
+  const name = document.getElementById('f7-name-input').value.trim() || "Gracz";
+  const pin = document.getElementById('f7-pin-input').value.trim();
+  if (!pin) return alert("Wpisz PIN!");
+
+  f7_topic = `f7_v1_${pin}`;
+  f7_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'f7_guest_' + makeSessionId(), clean: true });
+
+  f7_mqtt.on('connect', () => {
+    f7_isHost = false; f7_isOnline = true;
+    f7_mqtt.subscribe(f7_topic + "/state", { qos: 1 }, () => {
+      f7_mqtt.publish(f7_topic + "/join", JSON.stringify({ id: myGlobalId, name: name }), { qos: 1 });
+    });
+    document.getElementById('f7-pin-display').innerHTML = `✅ PIN: <strong style="color:var(--success);">${pin}</strong>`;
+    document.getElementById('f7-lobby-box').style.display = "none";
+  });
+
+  f7_mqtt.on('message', (t, m) => {
+    if (t.endsWith("/state")) {
+      const d = JSON.parse(m.toString());
+      f7_deck = d.deck; f7_players = d.players; f7_activeIdx = d.activeIdx;
+      f7Render();
+    }
+  });
+}
+
+function f7ResetGame() {
+  f7InitDeck();
+  f7_players.forEach(p => { p.cards = []; p.status = "active"; p.totalScore = 0; p.secondChances = 0; });
+  f7_activeIdx = 0;
+  f7Broadcast();
+  f7Render();
+}
+
+function f7Render() {
+  const currP = f7_players[f7_activeIdx];
+  const myP = f7_players.find(p => p.id === myGlobalId) || f7_players[f7_activeIdx];
+  const isMyTurn = currP && myP && currP.id === myP.id;
+
+  document.getElementById('f7-turn-banner').className = isMyTurn ? "turn-banner my-turn" : "turn-banner other-turn";
+  document.getElementById('f7-turn-text').innerText = isMyTurn ? "👉 TWOJA TURA!" : `⏳ TURA: ${currP ? currP.name.toUpperCase() : ''}`;
+
+  document.getElementById('f7-stat-deck').innerText = f7CardsLeft();
+  const sc = myP ? f7CalcScore(myP.cards) : { total:0, unCount:0 };
+  document.getElementById('f7-stat-round').innerText = sc.total;
+  document.getElementById('f7-stat-unique').innerText = `${sc.unCount}/7`;
+
+  document.getElementById('f7-btn-hit').disabled = !isMyTurn;
+  document.getElementById('f7-btn-stay').disabled = !isMyTurn;
+
+  const pList = document.getElementById('f7-players-list');
+  pList.innerHTML = "";
+  f7_players.forEach((p, idx) => {
+    const isAct = idx === f7_activeIdx;
+    pList.innerHTML += `
+      <div class="player-slot ${isAct ? 'active' : ''}">
+        <div><strong>${p.name} ${p.id === myGlobalId ? '(Ty)' : ''}</strong> [${p.status}]</div>
+        <div>
+          <span class="score-pill">Suma: ${p.totalScore}</span>
+          <div style="font-size:0.75rem; margin-top:2px;">${p.cards.join(', ') || '-'}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  const numBox = document.getElementById('f7-deck-numbers');
+  numBox.innerHTML = "";
+  for (let i = 0; i <= 12; i++) {
+    const c = i.toString();
+    numBox.innerHTML += `<button class="card-btn" disabled>${c}<br><small>${f7_deck[c]||0}</small></button>`;
+  }
+}
+
+// INICJALIZACJA STARTOWA
+elferStartGame(true);
+f7InitDeck();
+f7Render();
+</script>
+</body>
+</html>
