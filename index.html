@@ -45,7 +45,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg-main); color: var(--text-main); padding: 8px; min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; overflow-x: hidden; }
 
-  /* HUB / LOBBY */
+  /* HUB */
   .hub-container { max-width: 1100px; margin: 20px auto; width: 100%; display: flex; flex-direction: column; gap: 24px; align-items: center; }
   .hub-hero { text-align: center; padding: 15px 10px; }
   .hub-hero h1 {
@@ -79,7 +79,7 @@
   }
   .btn-enter-game:hover { opacity: 0.9; }
 
-  /* GÓRNY PASEK W GRACH */
+  /* GÓRNY PASEK */
   .game-nav-bar {
     max-width: 1350px; margin: 0 auto 8px auto; width: 100%; display: flex; justify-content: space-between;
     align-items: center; background: var(--bg-card); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
@@ -100,7 +100,6 @@
     text-align: center; position: relative; overflow: hidden; background: var(--bg-inner); color: var(--text-muted); border: 1px solid var(--border);
   }
   .turn-banner.my-turn { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
-  .timer-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: #fbbf24; transition: width 1s linear; }
 
   .top-btn {
     width: 52px; background: var(--bg-card); border: 1px solid var(--border);
@@ -108,7 +107,7 @@
   }
 
   .main-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-  @media(min-width: 950px) { .main-grid { display: grid; grid-template-columns: 1.4fr 1fr; align-items: start; } }
+  @media(min-width: 950px) { .main-grid { display: grid; grid-template-columns: 1.45fr 1fr; align-items: start; } }
 
   .panel {
     background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border);
@@ -125,7 +124,7 @@
   .btn-yellow { background: #eab308; color: #000; }
   .btn-blue { background: #38bdf8; color: #000; }
 
-  /* STYLE DLA GRY 11 */
+  /* GRA 11 */
   .color-lane {
     background: var(--bg-inner); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center;
     gap: 6px; border-left: 6px solid var(--border); overflow-x: auto; min-height: 76px;
@@ -148,7 +147,7 @@
   .hand-card { cursor: pointer; }
   .hand-card.playable { box-shadow: 0 0 16px var(--yellow); border: 2px solid #fff; transform: translateY(-4px); }
 
-  /* STYLE DLA FLIP 7 */
+  /* FLIP 7 */
   .arena-box {
     background: radial-gradient(circle at center, #1e293b 0%, #080f20 100%);
     border: 1px solid var(--border); border-radius: 12px; padding: 14px;
@@ -186,12 +185,14 @@
   .score-pill { background: #0284c7; color: #fff; font-size: 0.8rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
   .penalty-pill { background: #dc2626; color: #fff; font-size: 0.8rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
 
-  /* STYLE DLA SPLENDOR */
-  .splendor-gems-bank { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+  /* SPLENDOR */
+  .splendor-gems-bank { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
   .gem-token {
-    width: 48px; height: 48px; border-radius: 50%; display: flex; flex-direction: column; align-items: center;
+    width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center;
     justify-content: center; font-weight: 900; cursor: pointer; border: 3px solid rgba(255,255,255,0.4); box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    user-select: none; transition: transform 0.1s;
   }
+  .gem-token:active { transform: scale(0.92); }
   .gem-token.white { background: var(--gem-white); color: #000; }
   .gem-token.blue { background: var(--gem-blue); color: #fff; }
   .gem-token.green { background: var(--gem-green); color: #fff; }
@@ -201,22 +202,41 @@
 
   .nobles-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
   .noble-card {
-    width: 68px; height: 68px; background: #334155; border: 2px solid #e2e8f0; border-radius: 8px;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 4px; flex-shrink: 0;
+    width: 78px; height: 86px; background: #334155; border: 2px solid #fbbf24; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 6px 4px; flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; overflow: hidden;
   }
+  .noble-art { width: 34px; height: 34px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; margin: 2px 0; }
 
-  .splendor-cards-grid { display: flex; flex-direction: column; gap: 8px; }
+  .splendor-cards-grid { display: flex; flex-direction: column; gap: 10px; }
   .splendor-tier-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  
+  /* KARTA ROZWOJU SPLENDOR Z ILUSTRACJĄ */
   .dev-card {
-    width: 78px; height: 105px; border-radius: 8px; background: #1e293b; border: 2px solid var(--border);
-    display: flex; flex-direction: column; justify-content: space-between; padding: 4px; cursor: pointer; flex-shrink: 0;
+    width: 90px; height: 130px; border-radius: 10px; background: #1e293b; border: 2px solid var(--border);
+    display: flex; flex-direction: column; justify-content: space-between; padding: 6px; cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.15s, border-color 0.15s; position: relative;
   }
+  .dev-card:hover { transform: translateY(-3px); }
   .dev-card.tier-1 { border-color: #10b981; }
   .dev-card.tier-2 { border-color: #f59e0b; }
   .dev-card.tier-3 { border-color: #38bdf8; }
 
-  .cost-badge-row { display: flex; flex-wrap: wrap; gap: 2px; }
-  .cost-dot { font-size: 0.65rem; font-weight: bold; width: 14px; height: 14px; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .card-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+  .card-prestige { font-size: 1.1rem; font-weight: 900; color: #fff; }
+  .card-gem-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.4); }
+
+  .card-illustration {
+    width: 100%; height: 42px; border-radius: 6px; margin: 3px 0; background: rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .card-illustration svg { width: 34px; height: 34px; }
+
+  .cost-badge-column { display: flex; flex-direction: column; gap: 2px; }
+  .cost-badge-item {
+    font-size: 0.65rem; font-weight: 900; width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: #fff; border: 1px solid rgba(255,255,255,0.3);
+  }
 
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
@@ -230,9 +250,7 @@
 </head>
 <body>
 
-<!-- ======================================================== -->
-<!-- EKRAN GŁÓWNY: LOBBY ARENY                                -->
-<!-- ======================================================== -->
+<!-- GŁÓWNY HUB -->
 <div class="hub-container" id="view-hub">
   <div class="hub-hero">
     <h1>ARENA GIER KARCIANYCH</h1>
@@ -240,7 +258,6 @@
   </div>
 
   <div class="games-catalog">
-    <!-- GRA 11 -->
     <div class="game-card">
       <div>
         <span class="game-badge badge-live">Klasyk • 2-6 Graczy</span>
@@ -250,7 +267,6 @@
       <button class="btn-enter-game" onclick="openGame('elfer')">Graj w 11</button>
     </div>
 
-    <!-- FLIP 7 -->
     <div class="game-card">
       <div>
         <span class="game-badge badge-beta">Push Your Luck • 2-8 Graczy</span>
@@ -260,12 +276,11 @@
       <button class="btn-enter-game" onclick="openGame('flip7')">Graj we Flip 7</button>
     </div>
 
-    <!-- SPLENDOR DLA 6 GRACZY -->
     <div class="game-card">
       <div>
         <span class="game-badge badge-gold">Strategia • 2-6 Graczy</span>
         <div class="game-title" style="margin-top:10px;">Splendor (Edycja 6 os.)</div>
-        <div class="game-desc">Kupuj kopalnie, zbieraj klejnoty, rezerwuj karty i zdobywaj arystokratów. Skalowane żetony (10 każdego typu).</div>
+        <div class="game-desc">Rezerwuj i kupuj kopalnie z ilustracjami renesansowymi, zbieraj żetony (10 każdego typu) i zdobywaj arystokratów.</div>
       </div>
       <button class="btn-enter-game" style="background:#eab308; color:#000;" onclick="openGame('splendor')">Graj w Splendor</button>
     </div>
@@ -393,7 +408,7 @@
 </div>
 
 <!-- ======================================================== -->
-<!-- WIDOK 3: SPLENDOR (2-6 GRACZY)                           -->
+<!-- WIDOK 3: SPLENDOR (2-6 GRACZY Z ILUSTRACJAMI)            -->
 <!-- ======================================================== -->
 <div class="game-view" id="view-splendor">
   <div class="game-nav-bar">
@@ -410,16 +425,16 @@
 
   <div class="main-grid">
     <div class="panel">
-      <div style="font-size:0.8rem; font-weight:bold; color:var(--text-muted); text-transform:uppercase;">Bank Klejnotów (Kliknij, aby dobrać 3 różne lub 2 jednakowe)</div>
+      <div style="font-size:0.8rem; font-weight:bold; color:var(--text-muted); text-transform:uppercase;">Bank Klejnotów (Kliknij: 3 różne lub 2 jednakowe)</div>
       <div class="splendor-gems-bank" id="sp-bank-tokens"></div>
 
-      <div style="font-size:0.8rem; font-weight:bold; color:var(--yellow); text-transform:uppercase;">Arystokraci (Wymogi rozwoju)</div>
+      <div style="font-size:0.8rem; font-weight:bold; color:var(--yellow); text-transform:uppercase;">Arystokraci (Prestiż +3)</div>
       <div class="nobles-row" id="sp-nobles-row"></div>
 
-      <div style="font-size:0.8rem; font-weight:bold; color:var(--accent); text-transform:uppercase; margin-top:6px;">Karty Rozwoju na Stole</div>
+      <div style="font-size:0.8rem; font-weight:bold; color:var(--accent); text-transform:uppercase; margin-top:6px;">Karty Rozwoju (Kopalnie & Transport)</div>
       <div class="splendor-cards-grid" id="sp-cards-grid"></div>
 
-      <div class="controls-grid" style="margin-top:6px;">
+      <div class="controls-grid" style="margin-top:8px;">
         <button class="action-btn btn-green" onclick="spConfirmTokens()">Zatwierdź Żetony</button>
         <button class="action-btn btn-yellow" onclick="spClearSelectedTokens()">Wyczyść Wybór</button>
       </div>
@@ -442,10 +457,10 @@
         </div>
       </div>
 
-      <h3 style="font-size:0.9rem;">Gracze przy stole (Punkty & Zasoby)</h3>
+      <h3 style="font-size:0.9rem;">Gracze przy stole</h3>
       <div class="players-scroll" id="sp-players-list"></div>
 
-      <button class="action-btn btn-green" style="margin-top:auto;" onclick="spInitGame(true)">🔁 Nowa Gra</button>
+      <button class="action-btn btn-green" style="margin-top:auto;" onclick="spInitGame(true)">🔁 Nowy Mecz</button>
     </div>
   </div>
 </div>
@@ -480,7 +495,7 @@
     <ul style="margin-left:18px; margin-bottom:12px; font-size:0.85rem;">
       <li><strong>Cel:</strong> Osiągnięcie 15 punktów prestiżu uruchamia rundę finałową.</li>
       <li><strong>Dobieranie klejnotów:</strong> Weź 3 różne żetony lub 2 jednakowe (jeśli na stosie leżą min. 4). Maksymalnie 10 żetonów w ręku.</li>
-      <li><strong>Kupowanie kart:</strong> Wydaj wskazane żetony, uwzględniając stałe bonusy ze swoich wcześniejszych kart.</li>
+      <li><strong>Kupowanie kart:</strong> Wydaj wskazane żetony, uwzględniając stałe bonusy ze swoich kart.</li>
       <li><strong>Arystokraci:</strong> Odwiedzają gracza automatycznie po skompletowaniu kart w danych kolorach.</li>
     </ul>
     <button class="action-btn btn-blue" style="width:100%;" onclick="closeModal('modal-rules-splendor')">Rozumiem</button>
@@ -489,6 +504,7 @@
 
 <script>
 const MQTT_BROKER = "wss://broker.emqx.io:8084/mqtt";
+
 function makeSessionId() {
   let sId = sessionStorage.getItem("arena_session_id");
   if (!sId) {
@@ -525,7 +541,7 @@ function openGame(gameKey) {
 }
 
 /* ========================================================
-   MODUŁ: GRA 11 (STABILNY MQTT MULTIPLAYER)
+   MODUŁ: GRA 11
    ======================================================== */
 const E_COLORS = ['red', 'blue', 'yellow', 'green'];
 const E_COLOR_NAMES = { red: 'Czerwony', blue: 'Niebieski', yellow: 'Żółty', green: 'Zielony' };
@@ -801,7 +817,7 @@ function elferRender() {
     });
   } else {
     document.getElementById('elfer-cards-count').innerText = "0";
-    hBox.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); padding:10px;">Oczekiwanie na połączenie...</div>`;
+    hBox.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); padding:10px;">Łączenie...</div>`;
   }
 
   const hasPlayable = myP && myP.hand && myP.hand.some(elferCanPlay);
@@ -814,7 +830,7 @@ function elferRender() {
 }
 
 /* ========================================================
-   MODUŁ: FLIP 7 (BEZ SUROWEGO TEKSTU ACTIVE)
+   MODUŁ: FLIP 7
    ======================================================== */
 const F7_INITIAL = { "0":1,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"10":10,"11":11,"12":12,"+2":1,"+4":1,"+6":1,"+8":1,"+10":1,"x2":1,"Freeze":3,"Flip3":3,"2ndChance":3 };
 let f7_deck = {};
@@ -922,7 +938,7 @@ function f7CreateRoom() {
   f7_topic = `f7_v3_${pin}`;
   f7_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'f7_h_' + myGlobalId + '_' + Date.now(), clean: true });
 
-  e_mqtt.on('connect', () => {
+  f7_mqtt.on('connect', () => {
     f7_isHost = true; f7_isOnline = true;
     f7_players = [{ id: myGlobalId, name: name, cards: [], status: "active", totalScore: 0, secondChances: 0 }];
     f7_mqtt.subscribe(f7_topic + "/act", { qos: 1 });
@@ -1030,18 +1046,29 @@ function f7Render() {
 }
 
 /* ========================================================
-   MODUŁ: SPLENDOR (OFICJALNY SKALOWANY DLA 2-6 GRACZY)
+   MODUŁ: SPLENDOR (OFICJALNY DLA 2-6 GRACZY Z GRAFIKAMI)
    ======================================================== */
 const SP_GEMS = ['white', 'blue', 'green', 'red', 'black'];
-const SP_GEM_NAMES = { white: 'Diament', blue: 'Szafir', green: 'Szmaragd', red: 'Rubin', black: 'Onyks', gold: 'Złoto' };
+
+// Renesansowe grafiki wektorowe SVG dla kart i arystokratów
+const SP_ART_ICONS = {
+  // Tier 1: Kopalnia
+  mine: `<svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><path d="M14 2l4 4L7 17l-4-1 1-4L14 2z"/><path d="M3 22l6-6"/><path d="M18 6l3 3"/></svg>`,
+  // Tier 2: Karawana / Statek
+  ship: `<svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8"><path d="M2 20c5 0 8-2 10-2s5 2 10 2"/><path d="M4 18L3 12h18l-1 6"/><path d="M12 2v10"/><path d="M12 4l7 5H12"/></svg>`,
+  // Tier 3: Renesansowy Pałac
+  palace: `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8"><path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-4a3 3 0 0 1 6 0v4"/><circle cx="12" cy="9" r="1.5"/></svg>`,
+  // Arystokrata: Korona / Portret
+  noble: `<svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="1.8"><path d="M2 8l4 12h12l4-12-5 4-5-8-5 8z"/><circle cx="12" cy="16" r="2"/></svg>`
+};
 
 let sp_bank = { white: 10, blue: 10, green: 10, red: 10, black: 10, gold: 7 };
 let sp_nobles = [];
 let sp_grid = { 1: [], 2: [], 3: [] };
 let sp_decks = { 1: [], 2: [], 3: [] };
 let sp_players = [
-  { id: myGlobalId, name: "Gracz 1", gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 }, bonuses: { white:0, blue:0, green:0, red:0, black:0 }, points: 0, reserved: [] },
-  { id: "local_sp_2", name: "Gracz 2", gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 }, bonuses: { white:0, blue:0, green:0, red:0, black:0 }, points: 0, reserved: [] }
+  { id: myGlobalId, name: "Gracz 1", gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 }, bonuses: { white:0, blue:0, green:0, red:0, black:0 }, points: 0 },
+  { id: "local_sp_2", name: "Gracz 2", gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 }, bonuses: { white:0, blue:0, green:0, red:0, black:0 }, points: 0 }
 ];
 let sp_activeIdx = 0;
 let sp_selectedTokens = [];
@@ -1051,11 +1078,9 @@ let sp_isHost = true;
 let sp_isOnline = false;
 
 function spInitGame(reset = false) {
-  // Pula 10 żetonów podstawowych dla wariantu 5-6 graczy
   sp_bank = { white: 10, blue: 10, green: 10, red: 10, black: 10, gold: 7 };
   sp_selectedTokens = [];
 
-  // Przykładowe kafelki arystokratów (3 pkt, 4+4 lub 3+3+3)
   sp_nobles = [
     { points: 3, req: { green: 4, blue: 4 } },
     { points: 3, req: { white: 4, blue: 4 } },
@@ -1066,35 +1091,33 @@ function spInitGame(reset = false) {
     { points: 3, req: { red: 4, green: 4 } }
   ];
 
-  // Talia generator
   sp_decks = { 1: [], 2: [], 3: [] };
   const colors = ['white', 'blue', 'green', 'red', 'black'];
   
-  // Tier 1 (40 kart)
+  // Tier 1 (Kopalnie)
   for (let i = 0; i < 40; i++) {
     let c = colors[i % 5];
     let req = {};
     req[colors[(i+1)%5]] = (i % 3) + 1;
     req[colors[(i+2)%5]] = (i % 2) + 1;
-    sp_decks[1].push({ id: `t1_${i}`, tier: 1, gem: c, points: i % 7 === 0 ? 1 : 0, cost: req });
+    sp_decks[1].push({ id: `t1_${i}`, tier: 1, gem: c, points: i % 8 === 0 ? 1 : 0, cost: req, art: 'mine' });
   }
-  // Tier 2 (30 kart)
+  // Tier 2 (Statki handlowe)
   for (let i = 0; i < 30; i++) {
     let c = colors[i % 5];
     let req = {};
     req[colors[(i+1)%5]] = 3;
     req[colors[(i+3)%5]] = 2;
-    sp_decks[2].push({ id: `t2_${i}`, tier: 2, gem: c, points: (i % 3) + 1, cost: req });
+    sp_decks[2].push({ id: `t2_${i}`, tier: 2, gem: c, points: (i % 3) + 1, cost: req, art: 'ship' });
   }
-  // Tier 3 (20 kart)
+  // Tier 3 (Pałace)
   for (let i = 0; i < 20; i++) {
     let c = colors[i % 5];
     let req = {};
-    req[colors[(i+2)%5]] = 7;
-    sp_decks[3].push({ id: `t3_${i}`, tier: 3, gem: c, points: (i % 3) + 3, cost: req });
+    req[colors[(i+2)%5]] = 6;
+    sp_decks[3].push({ id: `t3_${i}`, tier: 3, gem: c, points: (i % 3) + 3, cost: req, art: 'palace' });
   }
 
-  // Tasowanie
   [1, 2, 3].forEach(t => {
     sp_decks[t].sort(() => Math.random() - 0.5);
     sp_grid[t] = sp_decks[t].splice(0, 4);
@@ -1105,7 +1128,6 @@ function spInitGame(reset = false) {
       p.gems = { white:0, blue:0, green:0, red:0, black:0, gold:0 };
       p.bonuses = { white:0, blue:0, green:0, red:0, black:0 };
       p.points = 0;
-      p.reserved = [];
     });
     sp_activeIdx = 0;
   }
@@ -1114,17 +1136,16 @@ function spInitGame(reset = false) {
 }
 
 function spSelectBankGem(gem) {
-  const myP = sp_players.find(p => p.id === myGlobalId) || sp_players[sp_activeIdx];
+  const myP = sp_players.find(p => p.id === myGlobalId);
   const currP = sp_players[sp_activeIdx];
-  if (!myP || currP.id !== myP.id || gem === 'gold') return;
+  if (!myP || !currP || currP.id !== myP.id || gem === 'gold') return;
   if (sp_bank[gem] <= 0) return;
 
-  // Walidacja: 2 takie same lub do 3 różnych
   if (sp_selectedTokens.includes(gem)) {
     if (sp_selectedTokens.length === 1 && sp_bank[gem] >= 3) {
       sp_selectedTokens.push(gem);
     } else {
-      alert("Możesz wziąć 2 żetony tego samego koloru tylko wtedy, gdy na stosie były min. 4!");
+      alert("Możesz dobrać 2 takie same żetony tylko, gdy na stosie leżą min. 4!");
     }
   } else {
     if (sp_selectedTokens.length < 3 && !sp_selectedTokens.some((v,i,a) => a.indexOf(v)!==i)) {
@@ -1140,16 +1161,16 @@ function spClearSelectedTokens() {
 }
 
 function spConfirmTokens() {
+  const myP = sp_players.find(p => p.id === myGlobalId);
   const currP = sp_players[sp_activeIdx];
-  const myP = sp_players.find(p => p.id === myGlobalId) || sp_players[sp_activeIdx];
-  if (!currP || !myP || currP.id !== myP.id) return;
+  if (!myP || !currP || currP.id !== myP.id) return;
 
   if (sp_selectedTokens.length !== 3 && !(sp_selectedTokens.length === 2 && sp_selectedTokens[0] === sp_selectedTokens[1])) {
     return alert("Wybierz dokładnie 3 różne żetony LUB 2 jednakowe!");
   }
 
   if (sp_isOnline && !sp_isHost) {
-    sp_mqtt.publish(sp_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "TAKE_TOKENS", tokens: sp_selectedTokens }));
+    sp_mqtt.publish(sp_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "TAKE_TOKENS", tokens: sp_selectedTokens }), { qos: 1 });
     sp_selectedTokens = [];
     return;
   }
@@ -1160,7 +1181,7 @@ function spConfirmTokens() {
 
 function spApplyTokens(senderId, tokens) {
   const currP = sp_players[sp_activeIdx];
-  if (currP.id !== senderId) return;
+  if (!currP || currP.id !== senderId) return;
 
   tokens.forEach(t => {
     sp_bank[t]--;
@@ -1183,15 +1204,15 @@ function spCanAffordCard(p, cost) {
 }
 
 function spBuyCard(tier, index) {
+  const myP = sp_players.find(p => p.id === myGlobalId);
   const currP = sp_players[sp_activeIdx];
-  const myP = sp_players.find(p => p.id === myGlobalId) || sp_players[sp_activeIdx];
-  if (!currP || !myP || currP.id !== myP.id) return;
+  if (!myP || !currP || currP.id !== myP.id) return;
 
   const card = sp_grid[tier][index];
-  if (!spCanAffordCard(currP, card.cost)) return alert("Nie masz wystarczającej liczby klejnotów!");
+  if (!spCanAffordCard(currP, card.cost)) return alert("Brak wystarczającej liczby klejnotów!");
 
   if (sp_isOnline && !sp_isHost) {
-    sp_mqtt.publish(sp_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "BUY", tier, index }));
+    sp_mqtt.publish(sp_topic + "/act", JSON.stringify({ senderId: myGlobalId, type: "BUY", tier: tier, index: index }), { qos: 1 });
     return;
   }
   spApplyBuy(myGlobalId, tier, index);
@@ -1199,11 +1220,10 @@ function spBuyCard(tier, index) {
 
 function spApplyBuy(senderId, tier, index) {
   const currP = sp_players[sp_activeIdx];
-  if (currP.id !== senderId) return;
+  if (!currP || currP.id !== senderId) return;
   const card = sp_grid[tier][index];
   if (!card) return;
 
-  // Pobranie kosztów
   for (let [gem, amount] of Object.entries(card.cost)) {
     let needFromGems = Math.max(0, amount - currP.bonuses[gem]);
     if (currP.gems[gem] >= needFromGems) {
@@ -1221,7 +1241,6 @@ function spApplyBuy(senderId, tier, index) {
   currP.bonuses[card.gem]++;
   currP.points += card.points;
 
-  // Nowa karta na stół
   if (sp_decks[tier].length > 0) {
     sp_grid[tier][index] = sp_decks[tier].pop();
   } else {
@@ -1230,7 +1249,7 @@ function spApplyBuy(senderId, tier, index) {
 
   spCheckNobles(currP);
   if (currP.points >= 15) {
-    alert(`🏆 ${currP.name} osiągnął 15 punktów prestiżu! Runda finałowa!`);
+    alert(`🏆 ${currP.name} zdobył 15 punktów prestiżu! Rozpoczyna się runda finałowa!`);
   }
   spNextTurn();
 }
@@ -1264,7 +1283,7 @@ function spAddLocalPlayer() {
     id: `local_sp_${num}`, name: `Gracz ${num}`,
     gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 },
     bonuses: { white:0, blue:0, green:0, red:0, black:0 },
-    points: 0, reserved: []
+    points: 0
   });
   spInitGame(true);
 }
@@ -1278,7 +1297,7 @@ function spBroadcast() {
 function spCreateRoom() {
   const name = document.getElementById('sp-name-input').value.trim() || "Host";
   const pin = Math.floor(1000 + Math.random() * 9000);
-  sp_topic = `sp_v1_${pin}`;
+  sp_topic = `sp_v2_${pin}`;
   sp_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'sp_h_' + myGlobalId + '_' + Date.now(), clean: true });
 
   sp_mqtt.on('connect', () => {
@@ -1287,7 +1306,7 @@ function spCreateRoom() {
       id: myGlobalId, name: name,
       gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 },
       bonuses: { white:0, blue:0, green:0, red:0, black:0 },
-      points: 0, reserved: []
+      points: 0
     }];
     sp_mqtt.subscribe(sp_topic + "/act", { qos: 1 });
     sp_mqtt.subscribe(sp_topic + "/join", { qos: 1 });
@@ -1304,7 +1323,7 @@ function spCreateRoom() {
           id: d.id, name: d.name,
           gems: { white:0, blue:0, green:0, red:0, black:0, gold:0 },
           bonuses: { white:0, blue:0, green:0, red:0, black:0 },
-          points: 0, reserved: []
+          points: 0
         });
         spBroadcast(); spRender();
       }
@@ -1320,9 +1339,10 @@ function spJoinRoom() {
   const pin = document.getElementById('sp-pin-input').value.trim();
   if (!pin) return alert("Wpisz PIN!");
 
-  sp_topic = `sp_v1_${pin}`;
+  sp_topic = `sp_v2_${pin}`;
   sp_mqtt = mqtt.connect(MQTT_BROKER, { clientId: 'sp_g_' + myGlobalId + '_' + Date.now(), clean: true });
 
+  // Poprawka connect dla Splendoru
   sp_mqtt.on('connect', () => {
     sp_isHost = false; sp_isOnline = true;
     sp_mqtt.subscribe(sp_topic + "/state", { qos: 1 }, () => {
@@ -1343,14 +1363,14 @@ function spJoinRoom() {
 
 function spRender() {
   const currP = sp_players[sp_activeIdx];
-  const myP = sp_players.find(p => p.id === myGlobalId) || sp_players[sp_activeIdx];
+  const myP = sp_players.find(p => p.id === myGlobalId) || (sp_isOnline ? null : sp_players[sp_activeIdx]);
   const isMyTurn = currP && myP && currP.id === myP.id;
 
   const banner = document.getElementById('sp-turn-banner');
   banner.className = isMyTurn ? "turn-banner my-turn" : "turn-banner other-turn";
   document.getElementById('sp-turn-text').innerText = isMyTurn ? "👉 TWOJA TURA!" : `⏳ TURA: ${currP ? currP.name.toUpperCase() : ''}`;
 
-  // Bank
+  // Bank klejnotów
   const bBox = document.getElementById('sp-bank-tokens');
   bBox.innerHTML = "";
   ['white','blue','green','red','black','gold'].forEach(g => {
@@ -1358,7 +1378,7 @@ function spRender() {
     bBox.innerHTML += `
       <div class="gem-token ${g}" onclick="spSelectBankGem('${g}')">
         <span>${sp_bank[g]}</span>
-        ${selCount > 0 ? `<span style="font-size:0.6rem; color:#ef4444;">+${selCount}</span>` : ''}
+        ${selCount > 0 ? `<span style="font-size:0.65rem; color:#ef4444; font-weight:900;">+${selCount}</span>` : ''}
       </div>
     `;
   });
@@ -1370,32 +1390,40 @@ function spRender() {
     let reqs = Object.entries(n.req).map(([g,a]) => `<span style="color:var(--gem-${g}); font-size:0.75rem; font-weight:900;">${a}●</span>`).join(' ');
     nBox.innerHTML += `
       <div class="noble-card">
-        <strong style="color:var(--yellow); font-size:0.9rem;">${n.points}</strong>
-        <div>${reqs}</div>
+        <div style="display:flex; justify-content:space-between; width:100%;">
+          <strong style="color:var(--yellow); font-size:0.95rem;">${n.points}</strong>
+          <span style="font-size:0.75rem;">👑</span>
+        </div>
+        <div class="noble-art">${SP_ART_ICONS.noble}</div>
+        <div style="display:flex; gap:3px;">${reqs}</div>
       </div>
     `;
   });
 
-  // Siatka kart
+  // Karty rozwoju
   const gBox = document.getElementById('sp-cards-grid');
   gBox.innerHTML = "";
   [3, 2, 1].forEach(tier => {
     let cardsHtml = sp_grid[tier].map((c, idx) => {
-      let costDots = Object.entries(c.cost).map(([g, a]) => `<span class="cost-dot" style="background:var(--gem-${g}); color:#fff;">${a}</span>`).join('');
+      let costBadges = Object.entries(c.cost).map(([g, a]) => `
+        <span class="cost-badge-item" style="background:var(--gem-${g});">${a}</span>
+      `).join('');
+
       return `
         <div class="dev-card tier-${tier}" onclick="spBuyCard(${tier}, ${idx})">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:var(--yellow); font-size:0.9rem;">${c.points || ''}</strong>
-            <span style="font-size:0.9rem; color:var(--gem-${c.gem});">💎</span>
+          <div class="card-top-bar">
+            <span class="card-prestige">${c.points || ''}</span>
+            <div class="card-gem-icon" style="background:var(--gem-${c.gem});">💎</div>
           </div>
-          <div class="cost-badge-row">${costDots}</div>
+          <div class="card-illustration">${SP_ART_ICONS[c.art || 'mine']}</div>
+          <div class="cost-badge-column">${costBadges}</div>
         </div>
       `;
     }).join('');
     gBox.innerHTML += `<div class="splendor-tier-row">${cardsHtml}</div>`;
   });
 
-  // Lista graczy
+  // Gracze
   const pBox = document.getElementById('sp-players-list');
   pBox.innerHTML = "";
   sp_players.forEach((p, idx) => {
@@ -1404,8 +1432,11 @@ function spRender() {
     pBox.innerHTML += `
       <div class="player-slot ${isAct ? 'active' : ''}">
         <div>
-          <strong>${p.name} ${p.id === myGlobalId ? '(Ty)' : ''}</strong>
-          <div style="font-size:0.75rem; margin-top:2px;">${gemsStr} | <strong style="color:var(--yellow);">${p.gems.gold}★</strong></div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <strong style="font-size:0.95rem;">${p.name} ${p.id === myGlobalId ? '(Ty)' : ''}</strong>
+            ${isAct ? '<span class="status-badge status-active">JEDZIE</span>' : ''}
+          </div>
+          <div style="font-size:0.75rem; margin-top:4px;">${gemsStr} | <strong style="color:var(--yellow);">${p.gems.gold}★ Złoto</strong></div>
         </div>
         <div>
           <span class="score-pill" style="background:#eab308; color:#000;">${p.points} Prestiż</span>
