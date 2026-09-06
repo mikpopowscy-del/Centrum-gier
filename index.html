@@ -39,46 +39,122 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg-main); color: var(--text-main); padding: 8px; min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; overflow-x: hidden; }
 
-  /* GŁÓWNY PRZEŁĄCZNIK GIER (TABS) */
-  .game-switcher-bar {
-    max-width: 1350px;
-    margin: 0 auto 10px auto;
+  /* KONTENER STRONY GŁÓWNEJ (HUB / LOBBY) */
+  .hub-container {
+    max-width: 1000px;
+    margin: 20px auto;
     width: 100%;
     display: flex;
-    gap: 6px;
-    background: var(--bg-card);
-    padding: 6px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
   }
 
-  .game-tab-btn {
-    flex: 1;
-    padding: 10px 4px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
+  .hub-hero {
+    text-align: center;
+    padding: 20px 10px;
+  }
+  .hub-hero h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #38bdf8 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .hub-hero p {
     color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .games-catalog {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+  @media(min-width: 700px) {
+    .games-catalog { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .game-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .game-badge {
+    align-self: flex-start;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+  .badge-live { background: rgba(16, 185, 129, 0.2); color: var(--green); border: 1px solid var(--green); }
+  .badge-beta { background: rgba(56, 189, 248, 0.2); color: var(--blue); border: 1px solid var(--blue); }
+  .badge-soon { background: rgba(168, 85, 247, 0.2); color: var(--purple); border: 1px solid var(--purple); }
+
+  .game-title { font-size: 1.35rem; font-weight: 900; color: var(--text-main); margin-bottom: 6px; }
+  .game-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+
+  .btn-enter-game {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 900;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #060d1d;
+    transition: opacity 0.15s;
+  }
+  .btn-enter-game:hover { opacity: 0.9; }
+
+  /* GÓRNY PASEK W GRACH */
+  .game-nav-bar {
+    max-width: 1350px;
+    margin: 0 auto 8px auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .btn-back-hub {
+    background: var(--bg-inner);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
     font-weight: 800;
-    font-size: 0.88rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
-    transition: all 0.2s;
-    text-transform: uppercase;
-  }
-  .game-tab-btn.active {
-    background: var(--accent);
-    color: #000;
-    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
   }
 
+  /* WIDOKI GIER */
   .game-view { display: none; width: 100%; max-width: 1350px; margin: 0 auto; flex-direction: column; gap: 10px; }
   .game-view.active-view { display: flex; }
 
-  /* WSPÓLNE STYLE WIDOKU */
   .top-bar-container { display: flex; gap: 8px; align-items: stretch; }
   .turn-banner {
     flex: 1; min-height: 54px; padding: 10px 14px; border-radius: 12px;
@@ -142,7 +218,7 @@
   .hand-card { cursor: pointer; }
   .hand-card.playable { box-shadow: 0 0 16px var(--yellow); border: 2px solid #fff; transform: translateY(-4px); }
 
-  /* STYLE FLIP 7 */
+  /* FLIP 7 */
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .stat-card { background: var(--bg-inner); padding: 8px 4px; border-radius: 8px; text-align: center; }
   .stat-card .num { font-size: 1.2rem; font-weight: 900; color: var(--accent); }
@@ -173,9 +249,9 @@
   }
   .player-slot.active { border-left-color: var(--yellow); background: rgba(56, 189, 248, 0.15); }
 
-  /* KAFELKI STATUSU */
+  /* ELEGANCKIE PLAKIETKI STATUSU (BRAK ACTIVE) */
   .status-badge {
-    font-size: 0.65rem; font-weight: 900; padding: 2px 6px; border-radius: 4px;
+    font-size: 0.65rem; font-weight: 900; padding: 2px 7px; border-radius: 5px;
     text-transform: uppercase; letter-spacing: 0.5px;
   }
   .status-active { background: #0284c7; color: #fff; }
@@ -183,8 +259,7 @@
   .status-busted { background: #ef4444; color: #fff; }
   .status-frozen { background: #38bdf8; color: #000; }
 
-  /* CHIPY KART W FLIP 7 */
-  .chips-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .chips-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
   .f7-chip {
     font-size: 0.75rem; font-weight: 900; padding: 2px 6px; border-radius: 5px;
     background: #0284c7; color: #fff; border: 1px solid rgba(255,255,255,0.2);
@@ -212,17 +287,63 @@
 </head>
 <body>
 
-<!-- GŁÓWNY PRZEŁĄCZNIK GIER -->
-<div class="game-switcher-bar">
-  <button class="game-tab-btn active" id="tab-btn-elfer" onclick="switchGameView('elfer')">🃏 Gra 11</button>
-  <button class="game-tab-btn" id="tab-btn-flip7" onclick="switchGameView('flip7')">⚡ Flip 7</button>
-  <button class="game-tab-btn" id="tab-btn-flip7v2" onclick="switchGameView('flip7v2')">🎲 Flip 7 (Wariant 2)</button>
+<!-- ======================================================== -->
+<!-- EKRAN GŁÓWNY: HUB / LOBBY WYBORU GIER                     -->
+<!-- ======================================================== -->
+<div class="hub-container" id="view-hub">
+  <div class="hub-hero">
+    <h1>ARENA GIER KARCIANYCH</h1>
+    <p>Wybierz grę, stwórz pokój ze znajomymi lub graj lokalnie na jednym ekranie.</p>
+  </div>
+
+  <div class="games-catalog">
+    <!-- KARTA: GRA 11 -->
+    <div class="game-card">
+      <div>
+        <span class="game-badge badge-live">Klasyk • 2-6 Graczy</span>
+        <div class="game-title" style="margin-top:10px;">Gra 11 (Elfer Raus)</div>
+        <div class="game-desc">
+          Otwieraj rzędy kartami 11 i dokładaj wartości w górę i w dół. Wygrywa gracz z najmniejszą liczbą punktów karnych!
+        </div>
+      </div>
+      <button class="btn-enter-game" onclick="openGame('elfer')">Graj w 11</button>
+    </div>
+
+    <!-- KARTA: FLIP 7 -->
+    <div class="game-card">
+      <div>
+        <span class="game-badge badge-beta">Push Your Luck • 2-8 Graczy</span>
+        <div class="game-title" style="margin-top:10px;">Flip 7</div>
+        <div class="game-desc">
+          Dobieraj karty i ryzykuj. Zbierz 7 unikalnych numerów dla wielkiego bonusu, ale uważaj na duplikaty i natychmiastowy Bust!
+        </div>
+      </div>
+      <button class="btn-enter-game" onclick="openGame('flip7')">Graj we Flip 7</button>
+    </div>
+
+    <!-- KARTA: FLIP 7 WARIANT 2 -->
+    <div class="game-card">
+      <div>
+        <span class="game-badge badge-soon">Wkrótce • Nowość</span>
+        <div class="game-title" style="margin-top:10px;">Flip 7: Wariant 2</div>
+        <div class="game-desc">
+          Specjalny slot przygotowany pod alternatywny zestaw zasad, nowe modyfikatory i tryb turniejowy.
+        </div>
+      </div>
+      <button class="btn-enter-game" style="background:#475569; color:#cbd5e1;" onclick="openGame('flip7v2')">Zobacz Wariant 2</button>
+    </div>
+  </div>
 </div>
 
 <!-- ======================================================== -->
 <!-- WIDOK 1: GRA 11                                          -->
 <!-- ======================================================== -->
-<div class="game-view active-view" id="view-elfer">
+<div class="game-view" id="view-elfer">
+  <div class="game-nav-bar">
+    <button class="btn-back-hub" onclick="backToHub()">⬅ Wróć do Lobby</button>
+    <span style="font-weight:bold; font-size:0.85rem; color:var(--accent);">🃏 Gra 11 Online</span>
+  </div>
+
   <div class="top-bar-container">
     <div class="turn-banner" id="elfer-turn-banner">
       <div id="elfer-turn-text">OCZEKIWANIE NA START</div>
@@ -284,6 +405,11 @@
 <!-- WIDOK 2: FLIP 7                                          -->
 <!-- ======================================================== -->
 <div class="game-view" id="view-flip7">
+  <div class="game-nav-bar">
+    <button class="btn-back-hub" onclick="backToHub()">⬅ Wróć do Lobby</button>
+    <span style="font-weight:bold; font-size:0.85rem; color:var(--accent);">⚡ Flip 7 Online</span>
+  </div>
+
   <div class="top-bar-container">
     <div class="turn-banner" id="f7-turn-banner">
       <div id="f7-turn-text">FLIP 7 ARENA</div>
@@ -342,21 +468,23 @@
 </div>
 
 <!-- ======================================================== -->
-<!-- WIDOK 3: FLIP 7 (WARIANT 2 - SLOT PRZYGOTOWANY)           -->
+<!-- WIDOK 3: FLIP 7 (WARIANT 2)                              -->
 <!-- ======================================================== -->
 <div class="game-view" id="view-flip7v2">
+  <div class="game-nav-bar">
+    <button class="btn-back-hub" onclick="backToHub()">⬅ Wróć do Lobby</button>
+    <span style="font-weight:bold; font-size:0.85rem; color:var(--accent);">🎲 Flip 7 - Wariant 2</span>
+  </div>
+
   <div class="panel" style="text-align:center; padding:40px 20px;">
-    <h2 style="color:var(--accent); margin-bottom:8px;">🎲 Flip 7 - Wariant 2</h2>
+    <h2 style="color:var(--accent); margin-bottom:8px;">🎲 Flip 7: Wariant 2</h2>
     <p style="color:var(--text-muted); font-size:0.9rem; max-width:400px; margin:0 auto 16px auto;">
-      Ten slot jest odizolowany i gotowy na wprowadzenie nowych zasad wariantu 2 (np. alternatywne punktowanie, specjalne kości lub karty modyfikatorów).
+      Slot przygotowany pod zestaw reguł wariantu 2 z osobnym kanałem sieciowym <code>f7_v2_*</code>.
     </p>
-    <div style="display:inline-block; padding:8px 16px; background:var(--bg-inner); border-radius:8px; border:1px dashed var(--border); font-size:0.8rem;">
-      Kanał MQTT zarezerwowany: <code>f7_v2_*</code>
-    </div>
   </div>
 </div>
 
-<!-- MODAL ZASADY 11 -->
+<!-- MODALE ZASAD -->
 <div class="modal-overlay" id="modal-rules-elfer">
   <div class="modal-box">
     <h2>📖 Zasady: Gra 11</h2>
@@ -370,7 +498,6 @@
   </div>
 </div>
 
-<!-- MODAL ZASADY FLIP 7 -->
 <div class="modal-overlay" id="modal-rules-flip7">
   <div class="modal-box">
     <h2>📖 Zasady: Flip 7</h2>
@@ -388,25 +515,30 @@ const MQTT_BROKER = "wss://broker.emqx.io:8084/mqtt";
 function makeSessionId() { return 'u_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7); }
 const myGlobalId = makeSessionId();
 
-function toggleTheme() {
-  document.body.classList.toggle("light-theme");
-}
+function toggleTheme() { document.body.classList.toggle("light-theme"); }
 function openModal(id) { document.getElementById(id).style.display = "flex"; }
 function closeModal(id) { document.getElementById(id).style.display = "none"; }
 
-function switchGameView(gameKey) {
+/* ========================================================
+   NAWIGACJA: HUB / LOBBY A WIDOKI GIER
+   ======================================================== */
+function backToHub() {
+  document.getElementById('view-hub').style.display = "flex";
   document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active-view'));
-  document.querySelectorAll('.game-tab-btn').forEach(b => b.classList.remove('active'));
+}
+
+function openGame(gameKey) {
+  document.getElementById('view-hub').style.display = "none";
+  document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active-view'));
 
   if (gameKey === 'elfer') {
     document.getElementById('view-elfer').classList.add('active-view');
-    document.getElementById('tab-btn-elfer').classList.add('active');
+    elferRender();
   } else if (gameKey === 'flip7') {
     document.getElementById('view-flip7').classList.add('active-view');
-    document.getElementById('tab-btn-flip7').classList.add('active');
+    f7Render();
   } else if (gameKey === 'flip7v2') {
     document.getElementById('view-flip7v2').classList.add('active-view');
-    document.getElementById('tab-btn-flip7v2').classList.add('active');
   }
 }
 
@@ -889,6 +1021,7 @@ function f7Render() {
   f7_players.forEach((p, idx) => {
     const isAct = idx === f7_activeIdx;
 
+    // CZYSTE PLAKIETKI STATUSU BEZ TEKSTU [ACTIVE]
     let statusText = "W GRZE";
     let statusClass = "status-active";
     if (p.status === "stayed") { statusText = "SPASOWAŁ"; statusClass = "status-stayed"; }
